@@ -3,7 +3,7 @@
   library("pacman")
 
 # Load packages
-  p_load(tidyverse, sf, ggrepel, officer)
+  p_load(tidyverse, sf, ggrepel, officer, ggridges)
 
 # load all polio data
   polio_data <-
@@ -67,8 +67,6 @@
           select(SITE_NAME, numb_days, ep_week, year) |>
           arrange((SITE_NAME))
   
-  library(ggridges)
-  
   es_data |> 
     filter(numb_days > 0, year > 2019) |> 
     group_by(PROVINCE) |>
@@ -78,11 +76,11 @@
     # mutate(DISTRICT_ADM02_NAME = fct_reorder(DISTRICT_ADM02_NAME, mean_days)) |>
     # pull(DISTRICT_ADM02_NAME)
     ggplot() +
-    geom_boxplot(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) + 
+    #geom_boxplot(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) 
+    geom_density_ridges(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) + 
     facet_wrap(~year)
   
-  glm(numb_days ~ year*DISTRICT_ADM02_NAME, family = "poisson", data = es_data |> filter(numb_days > 0))
-
+  # prediction  glm_model <- glm(numb_days ~ year , family = "poisson", data = es_data |> filter(numb_days > 0))
     
   es_data2 <- es_data |> 
     filter(numb_days > 0, year > 2019) |> 
