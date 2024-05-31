@@ -9,10 +9,13 @@
   polio_data <-
     read_rds("../data/polio_data.rds")
   
-# load masterlist from the ES repository
+ # load masterlist from the ES repository
+  my_link <- read_csv("../data/link/access.txt")
+  link <- my_link$lien[1]
+  
   active_es_sites <-
-        read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSu8KW76dhhUwyT3T_Dll4QK2ciORzTQZY9xCXoYrUjZPQ6AtWmjk0xPpYpIW84fg/pub?output=csv") |>
-        filter(STATUS == "ACTIVE")
+    read_csv(link) |>
+    filter(STATUS == "ACTIVE")
   
   
 # load es data from polio_data

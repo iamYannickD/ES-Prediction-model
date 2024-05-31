@@ -10,8 +10,11 @@ polio_data <-
   read_rds("../data/polio_data.rds")
 
 # load masterlist from the ES repository
+my_link <- read_csv("../data/link/access.txt")
+link <- my_link$lien[1]
+
 active_es_sites <-
-  read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSu8KW76dhhUwyT3T_Dll4QK2ciORzTQZY9xCXoYrUjZPQ6AtWmjk0xPpYpIW84fg/pub?output=csv") |>
+  read_csv(link) |>
   filter(STATUS == "ACTIVE")
 
 
@@ -41,11 +44,11 @@ afro_Adm2 <-
 es_data <-
   left_join(x = raw_es_data, y = active_es_sites, by = c("site.code" = "SITE_CODE" )) |>
   filter(!is.na(COUNTRY)) |>
-  select(IST, COUNTRY, PROVINCE, DISTRICT_ADM02_NAME, SITE_NAME, Lat_Y, Long_X, collection.date, date.shipped.to.ref.lab, date.received.in.lab ) |>
+  select(IST, ADM0_NAME, COUNTRY, PROVINCE, DISTRICT_ADM02_NAME, SITE_NAME, Lat_Y, Long_X, collection.date, date.shipped.to.ref.lab, date.received.in.lab ) |>
   mutate(
     numb_days = as.integer(dmy(date.received.in.lab) - dmy(collection.date)),
     year = year(dmy(collection.date)),
-    ep_week = epiweek(dmy(collection.date))
+    ep_week = as.numeric(epiweek(dmy(collection.date)))
   ) |>
   mutate(
     time_to_reach_lab = 
@@ -59,52 +62,31 @@ es_data <-
   #convert the categories (double) into factors for the classification
   mutate(time_to_reach_lab = factor(time_to_reach_lab, 
                                     labels = c("< 3 days", "> 3 and <= 5 days", "> 5 and <=10 days", "> 10 days"))) |>
-  filter(COUNTRY == "NIGERIA")
+  filter(COUNTRY == "SOUTH SUDAN")
 
-# prediction of the behavious for the next 1 month
-predict_time <-
-  es_data |>
-  select(SITE_NAME, numb_days, ep_week, year) |>
-  arrange((SITE_NAME))
 
 es_data |> 
-  filter(numb_days > 0, year > 2019) |> 
-  group_by(PROVINCE) |>
-  mutate(median_days = median(numb_days)) |> 
-  ungroup() |> 
-  # mutate(DISTRICT_ADM02_NAME = factor(DISTRICT_ADM02_NAME)) |> 
-  # mutate(DISTRICT_ADM02_NAME = fct_reorder(DISTRICT_ADM02_NAME, mean_days)) |>
-  # pull(DISTRICT_ADM02_NAME)
-  ggplot() +
-  #geom_boxplot(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) 
-  geom_density_ridges(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) + 
-  facet_wrap(~year)
+      filter(numb_days > 0, year > 2019) |> 
+      group_by(COUNTRY, ep_week) |>
+      #summarise(median_days = median(numb_days), max_days = max(numb_days) , .groups = "drop") |>
+      mutate(
+        median_days = median(numb_days),
+        max_days = max(numb_days)) |>
+      mutate(
+        ep_week = as.factor(ep_week)) |>
+      ungroup() |> 
+      ggplot() +
+      #geom_boxplot(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) 
+      geom_density_ridges(aes(x = median_days, y = ep_week, fill = median_days ), scale = 0.9 ) + 
+      facet_wrap(~year) +
+  labs(title = "Number of Days by Median Days and Months",
+       x = "Number of Days",
+       y = "Month",
+       fill = "Median Days") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# prediction  glm_model <- glm(numb_days ~ year , family = "poisson", data = es_data |> filter(numb_days > 0))
-
-es_data2 <- es_data |> 
-  filter(numb_days > 0, year > 2019) |> 
-  group_by(PROVINCE, DISTRICT_ADM02_NAME, SITE_NAME, year, Lat_Y) |> 
-  summarise(median_days = median(numb_days), max_days = max(numb_days) , .groups = "drop") 
-
-problem_sites <- es_data2 |> 
-  filter(year == 2020) |> 
-  arrange(-max_days) |> 
-  head(30) |> pull(SITE_NAME)
-
-es_data2 |> 
-  filter(SITE_NAME %in% problem_sites) |> 
-  ggplot() + 
-  geom_tile(aes(x = year, y = SITE_NAME, fill = median_days), color = "grey") + 
-  scale_fill_distiller(palette = "Reds", direction = 1) + 
-  facet_wrap(~PROVINCE, scales = "free") + 
-  theme_classic()
-
-es_data2 |> 
-  ggplot() + 
-  geom_tile(aes(x = year, y = fct_reorder(SITE_NAME, Lat_Y), fill = median_days), color = "grey") + 
-  scale_fill_distiller(palette = "Reds", direction = 1) + 
-  theme_classic()
+d
 
 
 
