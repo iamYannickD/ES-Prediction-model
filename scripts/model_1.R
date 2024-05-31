@@ -100,7 +100,6 @@
    facet_wrap(~PROVINCE, scales = "free") + 
    theme_classic()
     
- 
  es_data2 |> 
    ggplot() + 
    geom_tile(aes(x = year, y = fct_reorder(SITE_NAME, Lat_Y), fill = median_days), color = "grey") + 
