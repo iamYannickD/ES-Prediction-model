@@ -46,6 +46,15 @@
       numb_days = as.integer(dmy(date.received.in.lab) - dmy(collection.date)),
       year = year(dmy(collection.date))
             ) |>
+    mutate(
+      time_to_reach_lab = 
+          case_when(
+                  numb_days <= 3 ~ "< 3 days",
+                  numb_days >= 3 & numb_days <= 5 ~ "> 3 and <= 5 days",
+                  numb_days > 5 & numb_days <= 10 ~ "> 5 and <=10 days",
+                  numb_days > 10 ~ "> 10 days"
+                    ) 
+        ) |>
     filter(COUNTRY == "NIGERIA")
 
 
