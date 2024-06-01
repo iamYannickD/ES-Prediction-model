@@ -5,45 +5,38 @@ library("pacman")
 # Load packages
 p_load(tidyverse, sf, ggrepel, officer, ggridges)
 
-# connect to all repositories
+# Load the repository containing the links
 es_repo <- read_csv("../data/link/access.txt")
-  es_2016_2017 <-  es_repo$lien[2]
-  es_2018 <-  es_repo$lien[3]
-  es_2019 <-  es_repo$lien[4]
-  es_2020 <-  es_repo$lien[5]
-  es_2021 <-  es_repo$lien[6]
-  es_2022 <-  es_repo$lien[7]
-  es_2023 <-  es_repo$lien[8]
-  es_2024 <-  es_repo$lien[9]
+
+# load es sites from link
+    data_links <- es_repo$lien[2:9]
+    years <- c("2016_2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024")
+    
+    # Create an empty list to store datasets
+    es_data_list <- list()
+    
+    # Load datasets using a for loop
+    for (i in seq_along(years)) {
+      es_data_list[[years[i]]] <- read_csv(data_links[i])
+    }
+    
+    # Assign datasets to variables by year
+    list2env(es_data_list, .GlobalEnv)
   
-  masterlist <- es_repo$lien[1] 
+# load masterlist
+    masterlist <- es_repo$lien[1] 
+    
+    active_es_sites <-
+        read_csv(masterlist) |>
+        filter(STATUS == "ACTIVE") 
   
-# load dataset
-  active_es_sites <-
-    read_csv(masterlist) |>
-    filter(STATUS == "ACTIVE") 
   
-  es_2016 <-
-    read_csv(es_2016_2017)
+
   
-  es_2018 <-
-    read_csv(es_2018)
   
-  es_2019 <-
-    read_csv(es_2019)
   
-  es_2020 <-
-    read_csv(es_2020)
   
-  es_2021 <-
-    read_csv(es_2021)
   
-  es_2022 <-
-    read_csv(es_2022)
   
-  es_2023 <-
-    read_csv(es_2023)
   
-  es_2024 <-
-    read_csv(es_2024)
   
