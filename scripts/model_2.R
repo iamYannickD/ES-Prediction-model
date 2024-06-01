@@ -9,6 +9,9 @@ p_load(tidyverse, sf, ggrepel, officer, ggridges)
 polio_data <-
   read_rds("../data/polio_data.rds")
 
+polio_data_2016 <-
+  read_rds("../data/polio_data.2016.2018.rds")
+
 # load masterlist from the ES repository
 my_link <- read_csv("../data/link/access.txt")
 link <- my_link$lien[1]
@@ -20,7 +23,7 @@ active_es_sites <-
 
 # load es data from polio_data
 raw_es_data <-
-  polio_data$es |>
+  bind_rows(polio_data$es, polio_data_2016$es) |>
   filter(region.who.code == "AFRO")
 
 
@@ -64,9 +67,8 @@ es_data <-
                                     labels = c("< 3 days", "> 3 and <= 5 days", "> 5 and <=10 days", "> 10 days"))) |>
   filter(COUNTRY == "SOUTH SUDAN")
 
-
 es_data |> 
-      filter(numb_days > 0, year > 2019) |> 
+      filter(numb_days > 0) |> 
       group_by(COUNTRY, ep_week) |>
       #summarise(median_days = median(numb_days), max_days = max(numb_days) , .groups = "drop") |>
       mutate(
