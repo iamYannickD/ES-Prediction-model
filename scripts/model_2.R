@@ -50,8 +50,8 @@ es_data <-
   select(IST, ADM0_NAME, COUNTRY, PROVINCE, DISTRICT_ADM02_NAME, SITE_NAME, Lat_Y, Long_X, collection.date, date.shipped.to.ref.lab, date.received.in.lab ) |>
   mutate(
     numb_days = as.integer(dmy(date.received.in.lab) - dmy(collection.date)),
-    year = year(dmy(collection.date)),
-    ep_week = as.numeric(epiweek(dmy(collection.date)))
+    year = year(dmy(date.received.in.lab)),
+    ep_week = as.numeric(epiweek(dmy(date.received.in.lab)))
   ) |>
   mutate(
     time_to_reach_lab = 
@@ -68,7 +68,7 @@ es_data <-
   filter(COUNTRY == "SOUTH SUDAN")
 
 es_data |> 
-      filter(numb_days > 0) |> 
+      filter(numb_days >= 0) |> 
       group_by(COUNTRY, ep_week) |>
       #summarise(median_days = median(numb_days), max_days = max(numb_days) , .groups = "drop") |>
       mutate(
