@@ -109,28 +109,32 @@ cats_count <- es_data_prepared |>
   mutate(
     annotation = paste0("<= 3: ", `<= 3`, "\n3 - 5: ", `3 - 5`, "\n> 5: ", `> 5`)
   )
+days_to_lab <-
+    ggplot(data = es_data_prepared) +
+      geom_density_ridges(aes(x = median_days, y = Province, fill = median_stat ), 
+                          scale = 1, rel_min_height = 0.01, linewidth = 0.2 ) + # rel_min_height hides values less than 0.01
+      geom_vline(xintercept = 3, linetype = "dotted", color = "red") + # For a vertical dot line at x = 3  
+      scale_fill_manual(values = c("<= 3" = "green", "3 - 5" = "yellow", "> 5" = "red")) +
+      facet_wrap(~year) +
+      labs(title = paste0("Number of Days to reach the lab by Provinces in ", str_to_title(cntry)),
+           x = "Number of Days",
+           y = "Provinces",
+           fill = "Median Days") +
+      scale_x_continuous(limits = c(-0.5, NA)) +  # For the x-axis to start at -0.5
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 0, hjust = 0.5), # 0 orientation, half way from the division
+            axis.text.y = element_text(size = 5),
+            plot.title = element_text(hjust = 0.5, face = "bold"),) + # ajust and bold the title
+      geom_label(
+        data = cats_count,
+        aes(x = Inf, y = -Inf, label = annotation), # inf for the annotation to be even outside the graph
+        hjust = 1.2, vjust = -0.5, label.padding = unit(0, "lines"), label.size = 0, # position of annotation
+        inherit.aes = FALSE,
+        size = 2.5, fill = "white",
+        color = "black")   #+ coord_cartesian(clip = 'off')
 
-ggplot(data = es_data_prepared) +
-  geom_density_ridges(aes(x = median_days, y = Province, fill = median_stat ), 
-                      scale = 1, rel_min_height = 0.01 ) + # rel_min_height hides values less than 0.01
-  geom_vline(xintercept = 3, linetype = "dotted", color = "red") + # For a vertical dot line at x = 3  
-  scale_fill_manual(values = c("<= 3" = "green", "3 - 5" = "yellow", "> 5" = "red")) +
-  facet_wrap(~year) +
-  labs(title = paste0("Median Number of Days to reach the lab by Provinces in ", cntry),
-       x = "Median Number of Days",
-       y = "Provinces",
-       fill = "Median Days") +
-  scale_x_continuous(limits = c(-0.5, NA)) +  # For the x-axis to start at -0.5
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5), # 0 orientation, half way from the division
-        plot.title = element_text(hjust = 0.5, face = "bold")) + # ajust and bold the title
-  geom_label(
-    data = cats_count,
-    aes(x = Inf, y = -Inf, label = annotation), # inf for the annotation to be even outside the graph
-    hjust = 1.2, vjust = -3, label.padding = unit(0, "lines"), label.size = 0, # position of annotation
-    inherit.aes = FALSE,
-    size = 3, fill = "white",
-    color = "black") + coord_cartesian(clip = 'off')
+# export 
+ggsave(filename = paste0("../data/outputs/", str_to_title(cntry), "_median_days_to_lab.png"), plot = days_to_lab, width = 10, height = 8, dpi = 300)
 
 # computation of the ev rate
 ev_rate_data_prep <-
@@ -163,26 +167,32 @@ cats_ev_count <- ev_rate_data_prep |>
   mutate(
     annotation = paste0("<0.25: ", `<0.25`, "\n0.25 - 0.5: ", `0.25 - 0.5`, "\n> 0.5: ", `> 0.5`)
   )
+global_ev_rate <-
+    ggplot(data = ev_rate_data_prep) +
+      geom_density_ridges(aes(x = ev_rate, y = Province, fill = ev_isolation_rate), 
+                          scale = 1, rel_min_height = 0.1, linewidth = 0.2 ) +
+      geom_vline(xintercept = 0.5, linetype = "dotted", color = "red") +
+      scale_fill_manual(values = c("<0.25" = "red", "0.25 - 0.5" = "yellow", "> 0.5" = "green")) +
+      facet_wrap(~year) +
+      labs(title = paste0("EV rate by year and by provinces in ", str_to_title(cntry)),
+           x = "Number of Days",
+           y = "Provinces",
+           fill = "Median Days") +
+      scale_x_continuous(
+        limits = c(-0.02, 1.1),
+        breaks = c(0, 0.5, 1),  # Major ticks
+        minor_breaks = c(0.25, 0.75)  # Minor ticks
+        ) +  # Set the x-axis to start at 0
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1),
+            axis.text.y = element_text(size = 5.5),
+            plot.title = element_text(hjust = 0.5, face = "bold")) +
+      geom_label(
+        data = cats_ev_count,
+        aes(x = Inf, y = -Inf, label = annotation),
+        hjust = 1.12, vjust = -0.5, label.padding = unit(0, "lines"), label.size = 0,
+        inherit.aes = FALSE,
+        size = 2.5, fill = "white",
+        color = "black")
 
-ggplot(data = ev_rate_data_prep) +
-  geom_density_ridges(aes(x = ev_rate, y = Province, fill = ev_isolation_rate), 
-                      scale = 1, rel_min_height = 0.1, linewidth = 0.2 ) +
-  geom_vline(xintercept = 0.5, linetype = "dotted", color = "red") +
-  scale_fill_manual(values = c("<0.25" = "red", "0.25 - 0.5" = "yellow", "> 0.5" = "green")) +
-  facet_wrap(~year) +
-  labs(title = paste0("Median EV rate by year and by provinces in ", cntry),
-       x = "Number of Days",
-       y = "Provinces",
-       fill = "Median Days") +
-  scale_x_continuous(limits = c(-0.02, 1.1)) +  # Set the x-axis to start at 0
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.title = element_text(hjust = 0.5, face = "bold")) +
-  geom_label(
-    data = cats_ev_count,
-    aes(x = Inf, y = -Inf, label = annotation),
-    hjust = 1.12, vjust = -2.5, label.padding = unit(0, "lines"), label.size = 0,
-    inherit.aes = FALSE,
-    size = 3, fill = "white",
-    color = "black")
-
+ggsave(filename = paste0("../data/outputs/", str_to_title(cntry), "_global_ev_rate.png"), plot = global_ev_rate, width = 10, height = 8, dpi = 300)
