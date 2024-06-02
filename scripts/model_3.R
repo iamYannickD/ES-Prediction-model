@@ -106,7 +106,7 @@ plot_1
                     str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^3") |
                     str_detect(Finalcellcultureresult, "^4"), 1, 0))
             ) |>
-  group_by(Sitecode, ep_month) |>
+  group_by(Sitename, ep_month) |>
   mutate(ev_rate = mean(positive_pv),
          ep_month = as.factor(ep_month),
          ev_isolation_status = 
@@ -126,7 +126,7 @@ plot_1
        fill = "Median Days") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-  
-  
-  
+
+
+
   
