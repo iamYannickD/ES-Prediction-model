@@ -3,7 +3,7 @@ if (!require("pacman")) {install.packages("pacman")}
 library("pacman")
 
 # Load packages
-p_load(tidyverse, sf, ggrepel, officer, ggridges)
+p_load(tidyverse, ggridges)
 
 # select country of interest 
 cntry <- "NIGERIA"
@@ -175,7 +175,7 @@ global_ev_rate <-
       scale_fill_manual(values = c("<0.25" = "red", "0.25 - 0.5" = "yellow", "> 0.5" = "green")) +
       facet_wrap(~year) +
       labs(title = paste0("EV rate by year and by provinces in ", str_to_title(cntry)),
-           x = "Number of Days",
+           x = "EV rate",
            y = "Provinces",
            fill = "Median Days") +
       scale_x_continuous(
