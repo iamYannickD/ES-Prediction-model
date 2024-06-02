@@ -74,7 +74,7 @@ es_repo <- read_csv("../data/link/access.txt")
       ep_month = as.numeric(month(dmy(Datesampleinlab)))
     )  
   
-es_data |> 
+plot_1 <- es_data |> 
     filter(numb_days >= 0) |> 
     group_by(COUNTRY, ep_month) |>
     #summarise(median_days = median(numb_days), max_days = max(numb_days) , .groups = "drop") |>
@@ -88,15 +88,44 @@ es_data |>
     ggplot() +
     #geom_boxplot(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) 
     #geom_density_ridges(aes(x = median_days, y = ep_week, fill = median_days ), scale = 0.9 ) + 
-    geom_density_ridges(aes(x = median_days, y = ep_month, fill = median_days ), scale = 0.5 ) +
+    geom_density_ridges(aes(x = median_days, y = ep_month, fill = median_days ), scale = 1 ) +
     facet_wrap(~year) +
     labs(title = "Number of Days by Median Days and Months",
          x = "Number of Days",
          y = "Month",
          fill = "Median Days") +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))  
-  
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+plot_1
+
+#mat_es_months <-
+  es_data |>
+  filter(numb_days >= 0) |>
+  mutate(
+    positive_pv = as.integer( if_else(
+                    str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^3") |
+                    str_detect(Finalcellcultureresult, "^4"), 1, 0))
+            ) |>
+  group_by(Sitecode, ep_month) |>
+  mutate(ev_rate = mean(positive_pv),
+         ep_month = as.factor(ep_month),
+         ev_isolation_status = 
+                     case_when(
+                       ev_rate < 0.25 ~ 1,
+                       (ev_rate >= 0.25 & ev_rate < 0.5) ~ 2,
+                       ev_rate >= 0.5 ~ 3)) |>
+    filter(!is.na(ev_rate)) |>
+    ungroup() |>
+    mutate(ev_isolation_rate = factor(ev_isolation_status, labels = c("<0.25", "0.25 - 0.5", "> 0.5"))) |>
+  ggplot() +
+  geom_density_ridges(aes(x = ev_rate, y = ep_month, fill = ev_isolation_rate), scale = 1 ) +
+  facet_wrap(~year) +
+  labs(title = "Number of Days by Median Days and Months",
+       x = "Number of Days",
+       y = "Month",
+       fill = "Median Days") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
   
   
   
