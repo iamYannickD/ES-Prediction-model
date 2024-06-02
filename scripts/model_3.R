@@ -60,20 +60,12 @@ es_repo <- read_csv("../data/link/access.txt")
 
 # create a cumulative es file with all the results generated 
   all_es_data <-
-    bind_rows(es_2016_2017, es_2018, es_2019, es_2020, es_2021, es_2022, es_2022, es_2024) |>
-    arrange("datesampleinlab") |>
-    filter(Countryname == "CAMEROON" & year(Datesampleinlab) == 2023) 
-        
-  
+    bind_rows(es_2016_2017, es_2018, es_2019, es_2020, es_2021, es_2022, es_2023, es_2024)
+
 # adding long lat to ES sites and other information from the masterlist
   es_data <-
     left_join(x = all_es_data, y = active_es_sites, by = c("Sitecode" = "SITE_CODE" )) |>
-    arrange("datesampleinlab") |>
-    filter(COUNTRY == "CAMEROON" & year(Datesampleinlab) == 2023) 
-  
-    filter(
-      !is.na(COUNTRY), 
-      COUNTRY == "CAMEROON") |>
+      filter(!is.na(COUNTRY), COUNTRY == "CAMEROON") |>
     select(1:15, IST, SITE_NAME, Long_X, Lat_Y) |>
     mutate(
       numb_days = as.integer(dmy(Datesampleinlab) - dmy(Dateofcollection)),
@@ -96,7 +88,7 @@ es_data |>
     ggplot() +
     #geom_boxplot(aes(x = numb_days, y = fct_reorder(PROVINCE, median_days))) 
     #geom_density_ridges(aes(x = median_days, y = ep_week, fill = median_days ), scale = 0.9 ) + 
-    geom_density_ridges(aes(x = median_days, y = ep_month, fill = median_days ), scale = 0.9 ) +
+    geom_density_ridges(aes(x = median_days, y = ep_month, fill = median_days ), scale = 0.5 ) +
     facet_wrap(~year) +
     labs(title = "Number of Days by Median Days and Months",
          x = "Number of Days",
