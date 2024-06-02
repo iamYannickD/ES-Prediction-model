@@ -166,7 +166,7 @@ cats_ev_count <- ev_rate_data_prep |>
 
 ggplot(data = ev_rate_data_prep) +
   geom_density_ridges(aes(x = ev_rate, y = Province, fill = ev_isolation_rate), 
-                      scale = 1, rel_min_height = 0.01 ) +
+                      scale = 1, rel_min_height = 0.1, linewidth = 0.2 ) +
   geom_vline(xintercept = 0.5, linetype = "dotted", color = "red") +
   scale_fill_manual(values = c("<0.25" = "red", "0.25 - 0.5" = "yellow", "> 0.5" = "green")) +
   facet_wrap(~year) +
@@ -174,7 +174,7 @@ ggplot(data = ev_rate_data_prep) +
        x = "Number of Days",
        y = "Provinces",
        fill = "Median Days") +
-  scale_x_continuous(limits = c(-0.1, NA)) +  # Set the x-axis to start at 0
+  scale_x_continuous(limits = c(-0.02, 1.1)) +  # Set the x-axis to start at 0
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         plot.title = element_text(hjust = 0.5, face = "bold")) +
