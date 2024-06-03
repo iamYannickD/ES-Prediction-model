@@ -6,7 +6,7 @@ library("pacman")
 p_load(tidyverse, ggridges)
 
 # select country of interest 
-cntry <- "NIGERIA"
+cntry <- "MADAGASCAR"
 
 # Load the repository containing the links
 es_repo <- read_csv("../data/link/access.txt")
@@ -124,6 +124,8 @@ days_to_lab <-
       theme_bw() +
       theme(axis.text.x = element_text(angle = 0, hjust = 0.5), # 0 orientation, half way from the division
             axis.text.y = element_text(size = 5),
+            #axis.text.y = element_blank(),  # Remove y-axis text
+            #axis.ticks.y=element_blank(),  #remove y axis ticks
             plot.title = element_text(hjust = 0.5, face = "bold"),) + # ajust and bold the title
       geom_label(
         data = cats_count,
@@ -177,15 +179,17 @@ global_ev_rate <-
       labs(title = paste0("EV rate by year and by provinces in ", str_to_title(cntry)),
            x = "EV rate",
            y = "Provinces",
-           fill = "Median Days") +
+           fill = "EV Rate") +
       scale_x_continuous(
         limits = c(-0.02, 1.1),
         breaks = c(0, 0.5, 1),  # Major ticks
         minor_breaks = c(0.25, 0.75)  # Minor ticks
         ) +  # Set the x-axis to start at 0
       theme_bw() +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1),
+      theme(axis.text.x = element_text(angle = 0, hjust = 0.5),
             axis.text.y = element_text(size = 5.5),
+            #axis.text.y = element_blank(),  # Remove y-axis text
+            #axis.ticks.y=element_blank(),  #remove y axis ticks
             plot.title = element_text(hjust = 0.5, face = "bold")) +
       geom_label(
         data = cats_ev_count,
